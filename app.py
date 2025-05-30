@@ -25,7 +25,7 @@ def get_nearest_points(reference_lat, reference_lon, data, n):
     return distances[:n]
 
 # Load dataset from CSV (ensure it's in the same directory or adjust path)
-csv_file = r'C:\Users\Acer\OneDrive\Documents\GitHub\distance\Indian Cities Database.csv'
+csv_file = r'Indian Cities Database.csv'
 data = pd.read_csv(csv_file)
 
 @app.route('/', methods=['GET', 'POST'])
