@@ -31,12 +31,39 @@ data = pd.read_csv(csv_file)
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'POST':
-        lat = float(request.form['latitude'])
-        lon = float(request.form['longitude'])
         n = int(request.form['n'])
-        nearest_points = get_nearest_points(lat, lon, data, n)
-        return render_template('index.html', points=nearest_points, lat=lat, lon=lon)
-    return render_template('index.html', points=None)
+        
+        # Get the number of coordinate pairs (default to 1 if not provided)
+        coordinate_count = int(request.form.get('coordinate-count', 1))
+        
+        all_results = []
+        
+        # Process each coordinate pair
+        for i in range(coordinate_count):
+            lat_key = f'latitude-{i}'
+            lon_key = f'longitude-{i}'
+                
+            # Skip if this pair doesn't exist in the form
+            if lat_key not in request.form or lon_key not in request.form:
+                continue
+                
+            try:
+                lat = float(request.form[lat_key])
+                lon = float(request.form[lon_key])
+                nearest_points = get_nearest_points(lat, lon, data, n)
+                
+                all_results.append({
+                    'lat': lat,
+                    'lon': lon,
+                    'points': nearest_points
+                })
+            except ValueError:
+                # Skip invalid coordinates
+                continue
+        
+        return render_template('index.html', all_results=all_results)
+    
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -31,42 +31,110 @@
         th {
             background-color: #f4f4f4;
         }
+        .coordinate-pair {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        #add-coordinates {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #add-coordinates:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Find Nearest Cities</h1>
         <form method="POST">
-            <label for="latitude">Latitude:</label>
-            <input type="text" id="latitude" name="latitude" required>
+            <div id="coordinates-container">
+                <div class="coordinate-pair">
+                    <label for="latitude-0">Latitude:</label>
+                    <input type="text" id="latitude-0" name="latitude-0" required>
 
-            <label for="longitude">Longitude:</label>
-            <input type="text" id="longitude" name="longitude" required>
-
-            <label for="n">Number of nearest cities:</label>
+                    <label for="longitude-0">Longitude:</label>
+                    <input type="text" id="longitude-0" name="longitude-0" required>
+                </div>
+            </div>
+            
+            <button type="button" id="add-coordinates" style="width: auto; margin-bottom: 20px;">Add Another Location</button>
+            
+            <label for="n">Number of nearest cities per location:</label>
             <input type="number" id="n" name="n" value="10" required>
 
             <button type="submit">Find Nearest Cities</button>
         </form>
+        
+        <script>
+            let coordinateCount = 1;
+            
+            document.getElementById('add-coordinates').addEventListener('click', function() {
+                const container = document.getElementById('coordinates-container');
+                const newPair = document.createElement('div');
+                newPair.className = 'coordinate-pair';
+                newPair.innerHTML = `
+                    <hr style="margin: 15px 0;">
+                    <label for="latitude-${coordinateCount}">Latitude:</label>
+                    <input type="text" id="latitude-${coordinateCount}" name="latitude-${coordinateCount}" required>
 
-        {% if points %}
-        <h3>Nearest Cities to Latitude: {{ lat }}, Longitude: {{ lon }}</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>City</th>
-                    <th>Distance (km)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for point in points %}
-                <tr>
-                    <td>{{ point[0] }}</td>
-                    <td>{{ "%.2f"|format(point[1]) }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    <label for="longitude-${coordinateCount}">Longitude:</label>
+                    <input type="text" id="longitude-${coordinateCount}" name="longitude-${coordinateCount}" required>
+                `;
+                container.appendChild(newPair);
+                coordinateCount++;
+                
+                // Add hidden field to track the count
+                let countField = document.getElementById('coordinate-count');
+                if (!countField) {
+                    countField = document.createElement('input');
+                    countField.type = 'hidden';
+                    countField.id = 'coordinate-count';
+                    countField.name = 'coordinate-count';
+                    container.appendChild(countField);
+                }
+                countField.value = coordinateCount;
+            });
+            
+            // Initialize the hidden count field
+            window.onload = function() {
+                const container = document.getElementById('coordinates-container');
+                const countField = document.createElement('input');
+                countField.type = 'hidden';
+                countField.id = 'coordinate-count';
+                countField.name = 'coordinate-count';
+                countField.value = coordinateCount;
+                container.appendChild(countField);
+            };
+        </script>
+
+        {% if all_results %}
+            {% for result in all_results %}
+            <div class="result-section" style="margin-top: 30px;">
+                <h3>Nearest Cities to Latitude: {{ result.lat }}, Longitude: {{ result.lon }}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>City</th>
+                            <th>Distance (km)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for point in result.points %}
+                        <tr>
+                            <td>{{ point[0] }}</td>
+                            <td>{{ "%.2f"|format(point[1]) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
         {% endif %}
     </div>
 </body>
