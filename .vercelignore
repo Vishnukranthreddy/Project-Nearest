@@ -1,0 +1,9 @@
+app.py
+.vscode/
+.zencoder/
+*.pyc
+__pycache__/
+.git/
+.gitignore
+problem.txt
+README.md
